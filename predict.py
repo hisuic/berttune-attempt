@@ -24,4 +24,9 @@ while True:
     pred_id = logits.argmax(dim=-1).item()
 
     # result
-    print("Predict result: ", pred_id)
+    if pred_id == 0:
+        print("\nThe given English is likely written by non-native\n")
+    elif pred_id == 1:
+        print("\nThe given English is likely written by native\n")
+    else:
+        print("\nFailed to predict\n")
