@@ -12,6 +12,23 @@ referrence: https://qiita.com/sfjwr/items/6768a942e3f4e6f5f627
 !pip install datasets
 !pip install transformers
 
+"""評価用の関数を定義"""
+
+import numpy as np
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+
+def compute_metrics(eval_pred):
+    logits, labels = eval_pred
+    preds = np.argmax(logits, axis=-1)
+    accuracy = accuracy_score(labels, preds)
+    precision, recall, f1, _ = precision_recall_fscore_support(labels, preds, average='weighted')
+    return {
+        "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1
+    }
+
 """Tokenizerの取得"""
 
 from transformers import AutoTokenizer
@@ -110,9 +127,15 @@ trainer = Trainer(
     data_collator=data_collator,
     tokenizer=tokenizer,
     callbacks=[EarlyStoppingCallback(early_stopping_patience=30)],
+    compute_metrics=compute_metrics
 )
 
 trainer.train()
+
+"""評価結果の確認"""
+
+eval_result = trainer.evaluate()
+print(eval_result)
 
 """学習後の動作確認"""
 
